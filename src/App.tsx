@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { DataDropdown } from "./components/DataDropdown/DataDropdown";
+import { ArraySource } from "./data/ArraySource";
+import { Popup } from "./components/Popup";
 
-function App() {
+// Объявляем тип для данных компании
+type Company = {
+  id: string;
+  name: string;
+};
+
+const App: React.FC = () => {
+  const [selectedValue, setSelectedValue] = useState<Company | null>(null); // Указываем тип состояния
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleChangeValue = (value: Company | null) => {
+    // Указываем правильный тип для обработчика
+    setSelectedValue(value);
+    setShowPopup(true); // Показать попап
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <DataDropdown
+        value={selectedValue} // Передаем значение в компонент
+        onChangeValue={handleChangeValue}
+        dataSource={ArraySource}
+      />
+      {showPopup && selectedValue && (
+        <Popup
+          companyName={selectedValue.name}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </div>
   );
-}
+};
 
 export default App;
