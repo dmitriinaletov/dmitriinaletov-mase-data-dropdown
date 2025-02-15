@@ -1,0 +1,76 @@
+/* DataDropdown.css */
+.data-dropdown {
+  width: 320px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.data-dropdown input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.data-dropdown .dropdown-list {
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fafafa;
+  margin-bottom: 12px;
+}
+
+.data-dropdown .dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.data-dropdown .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.data-dropdown .no-results {
+  padding: 10px;
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+}
+
+.data-dropdown .pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.data-dropdown .pagination button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.data-dropdown .pagination button:hover {
+  background-color: #0056b3;
+}
+
+.data-dropdown .current-value {
+  margin-top: 16px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+}

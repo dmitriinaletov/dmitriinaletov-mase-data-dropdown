@@ -1,5 +1,7 @@
 import React from "react";
 
+import "./Popup.css";
+
 interface PopupProps {
   companyName: string;
   onClose: () => void;

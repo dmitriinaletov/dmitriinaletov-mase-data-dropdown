@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+import "./DataDropdown.css";
+
 export type DataPage<T> = {
   prevPageCursor: string;
   nextPageCursor: string;
@@ -31,11 +33,13 @@ export const DataDropdown = <T,>({
 }: DataDropdownProps<T>) => {
   const [searchText, setSearchText] = useState("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
+  const [pageCursor, setPageCursor] = useState<string>(""); // State for storing the page cursor
 
   // Function to start a text search
   const startSearch = async (text: string) => {
     const page = await dataSource.startFulltextSearch(text);
     setDataPage(page);
+    setPageCursor(page.nextPageCursor || ""); // Store the next page cursor
   };
 
   // Function to handle item click
@@ -52,6 +56,24 @@ export const DataDropdown = <T,>({
     if (value === null) return "Select an item";
 
     return dataSource.getDisplayName(value); // Display the name via getDisplayName
+  };
+
+  // Function to load the next page
+  const loadNextPage = async () => {
+    if (dataPage?.nextPageCursor) {
+      const nextPage = await dataSource.getNextPage(dataPage.nextPageCursor);
+      setDataPage(nextPage);
+      setPageCursor(nextPage.nextPageCursor || ""); // Update the cursor for the next page
+    }
+  };
+
+  // Function to load the previous page
+  const loadPrevPage = async () => {
+    if (dataPage?.prevPageCursor) {
+      const prevPage = await dataSource.getPrevPage(dataPage.prevPageCursor);
+      setDataPage(prevPage);
+      setPageCursor(prevPage.prevPageCursor || ""); // Update the cursor for the previous page
+    }
   };
 
   useEffect(() => {
@@ -72,25 +94,37 @@ export const DataDropdown = <T,>({
   };
 
   return (
-    <div>
+    <div className="data-dropdown">
       <input
         type="text"
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)} // Update the search value
+        onChange={(e) => setSearchText(e.target.value)}
         placeholder="Search..."
       />
-      <div>
+      <div className="dropdown-list">
         {dataPage?.data.length ? (
           dataPage.data.map((item, index) => (
-            <div key={index} onClick={() => handleItemClick(item)}>
+            <div
+              key={index}
+              className="dropdown-item"
+              onClick={() => handleItemClick(item)}
+            >
               {renderItem(item)}
             </div>
           ))
         ) : (
-          <div>No results found</div> // Display message if no search results
+          <div className="no-results">No results found</div>
         )}
       </div>
-      <div>{renderCurrentValue()}</div>
+      <div className="pagination">
+        {dataPage?.prevPageCursor && (
+          <button onClick={loadPrevPage}>Previous</button>
+        )}
+        {dataPage?.nextPageCursor && (
+          <button onClick={loadNextPage}>Next</button>
+        )}
+      </div>
+      <div className="current-value">{renderCurrentValue()}</div>
     </div>
   );
 };
