@@ -1,28 +1,26 @@
 import React, { useState } from "react";
 import { DataDropdown } from "./components/DataDropdown/DataDropdown";
 import { ArraySource } from "./data/ArraySource";
-import { Popup } from "./components/Popup";
+import { Popup } from "./components/Popup/Popup";
 
-// Объявляем тип для данных компании
 type Company = {
   id: string;
   name: string;
 };
 
 const App: React.FC = () => {
-  const [selectedValue, setSelectedValue] = useState<Company | null>(null); // Указываем тип состояния
+  const [selectedValue, setSelectedValue] = useState<Company | null>(null);
   const [showPopup, setShowPopup] = useState(false);
 
   const handleChangeValue = (value: Company | null) => {
-    // Указываем правильный тип для обработчика
     setSelectedValue(value);
-    setShowPopup(true); // Показать попап
+    setShowPopup(true);
   };
 
   return (
     <div>
       <DataDropdown
-        value={selectedValue} // Передаем значение в компонент
+        value={selectedValue}
         onChangeValue={handleChangeValue}
         dataSource={ArraySource}
       />

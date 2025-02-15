@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-// Определяем тип страницы данных
 export type DataPage<T> = {
   prevPageCursor: string;
   nextPageCursor: string;
@@ -8,7 +7,6 @@ export type DataPage<T> = {
   data: Array<T>;
 };
 
-// Тип источника данных
 export type DataSource<T> = {
   getDisplayName: (value: T) => string;
   startFulltextSearch: (text: string) => Promise<DataPage<T>>;
@@ -17,7 +15,7 @@ export type DataSource<T> = {
 };
 
 interface DataDropdownProps<T> {
-  value: T | null; // Тип для value - T или null
+  value: T | null;
   onChangeValue: (value: T | null) => void;
   dataSource: DataSource<T>;
   onRenderCurrentValue?: (value: T | null) => React.ReactNode;
@@ -34,44 +32,43 @@ export const DataDropdown = <T,>({
   const [searchText, setSearchText] = useState("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
 
-  // Функция для начала поиска по тексту
+  // Function to start a text search
   const startSearch = async (text: string) => {
     const page = await dataSource.startFulltextSearch(text);
     setDataPage(page);
   };
 
-  // Функция для обработки клика на элемент
+  // Function to handle item click
   const handleItemClick = (item: T) => {
     onChangeValue(item);
   };
 
-  // Отображение текущего значения
+  // Render the current value
   const renderCurrentValue = () => {
     if (onRenderCurrentValue) {
-      return onRenderCurrentValue(value); // Если передана функция для рендера, используем её
+      return onRenderCurrentValue(value); // Use provided render function if available
     }
 
-    // Если value равно null, вернуть какой-то placeholder или пустую строку
     if (value === null) return "Select an item";
 
-    return dataSource.getDisplayName(value); // Отображаем название через getDisplayName
+    return dataSource.getDisplayName(value); // Display the name via getDisplayName
   };
 
   useEffect(() => {
     if (searchText) {
-      startSearch(searchText); // Если есть текст в поиске, начинаем поиск
+      startSearch(searchText); // Start search if there is text entered
     } else {
-      setDataPage(null); // Если текст пустой, очищаем результаты поиска
+      setDataPage(null); // Clear search results if the text is empty
     }
   }, [searchText]);
 
-  // Функция для рендера элемента списка
+  // Function to render each list item
   const renderItem = (item: T) => {
     if (onRenderItemValue) {
-      return onRenderItemValue(item); // Если передана функция для рендера, используем её
+      return onRenderItemValue(item); // Use provided render function if available
     }
 
-    return dataSource.getDisplayName(item); // Отображаем название элемента через getDisplayName
+    return dataSource.getDisplayName(item); // Display item name via getDisplayName
   };
 
   return (
@@ -79,21 +76,21 @@ export const DataDropdown = <T,>({
       <input
         type="text"
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)} // Обновляем значение поиска
+        onChange={(e) => setSearchText(e.target.value)} // Update the search value
         placeholder="Search..."
       />
       <div>
         {dataPage?.data.length ? (
           dataPage.data.map((item, index) => (
             <div key={index} onClick={() => handleItemClick(item)}>
-              {renderItem(item)} {/* Рендерим каждый элемент */}
+              {renderItem(item)}
             </div>
           ))
         ) : (
-          <div>No results found</div> // Если нет результатов поиска
+          <div>No results found</div> // Display message if no search results
         )}
       </div>
-      <div>{renderCurrentValue()}</div> {/* Отображаем текущее значение */}
+      <div>{renderCurrentValue()}</div>
     </div>
   );
 };
