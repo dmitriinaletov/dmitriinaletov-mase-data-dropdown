@@ -80,6 +80,13 @@ export const DataDropdown = <T,>({
     }
   };
 
+  // Handle click on the input field to load the first page
+  const handleDropdownClick = () => {
+    if (!dataPage) {
+      startSearch(""); // Load the first page when the dropdown is clicked
+    }
+  };
+
   useEffect(() => {
     if (searchText) {
       startSearch(searchText);
@@ -104,6 +111,7 @@ export const DataDropdown = <T,>({
         type="text"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
+        onFocus={handleDropdownClick} // Trigger the first page load on input focus
         placeholder="Search..."
       />
       <div className="dropdown-list">
