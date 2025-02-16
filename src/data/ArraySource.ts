@@ -6,7 +6,6 @@ type Company = {
   name: string;
 };
 
-// Function to paginate data
 const paginate = <T>(
   data: T[],
   pageSize: number,
@@ -25,26 +24,27 @@ const paginate = <T>(
   };
 };
 
-// Implementing ArraySource with pagination
 export const ArraySource: DataSource<Company> = {
-  // Function to get the displayName of the company
   getDisplayName: (value: Company) => value.name,
 
   // Function for full-text search
-  startFulltextSearch: (text: string): Promise<DataPage<Company>> => {
+  startFulltextSearch: (text: string): Promise<string> => {
     const filtered = companies.filter(
       (company) => company.name.toLowerCase().includes(text.toLowerCase()) // Filter by company name
     );
 
-    // Returning the first page of search results
-    return Promise.resolve(paginate(filtered, 10, 0));
+    const firstPage = paginate(filtered, 10, 0);
+    return Promise.resolve(firstPage.nextPageCursor || "0");
   },
 
   // Function to get the next page
-  getNextPage: (pageCursor: string): Promise<DataPage<Company>> => {
+  getNextPage: (
+    pageCursor: string,
+    searchText: string
+  ): Promise<DataPage<Company>> => {
     const cursor = parseInt(pageCursor, 10);
     const filtered = companies.filter((company) =>
-      company.name.toLowerCase().includes("search")
+      company.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
     // Returning the next page
@@ -52,13 +52,15 @@ export const ArraySource: DataSource<Company> = {
   },
 
   // Function to get the previous page
-  getPrevPage: (pageCursor: string): Promise<DataPage<Company>> => {
+  getPrevPage: (
+    pageCursor: string,
+    searchText: string
+  ): Promise<DataPage<Company>> => {
     const cursor = parseInt(pageCursor, 10);
-    const filtered = companies.filter(
-      (company) => company.name.toLowerCase().includes("search") // Add search logic here
+    const filtered = companies.filter((company) =>
+      company.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    // Returning the previous page
     return Promise.resolve(paginate(filtered, 10, cursor - 1));
   },
 };

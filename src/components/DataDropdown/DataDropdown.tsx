@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import "./DataDropdown.css";
 
@@ -11,9 +11,9 @@ export type DataPage<T> = {
 
 export type DataSource<T> = {
   getDisplayName: (value: T) => string;
-  startFulltextSearch: (text: string) => Promise<DataPage<T>>;
-  getNextPage: (pageCursor: string) => Promise<DataPage<T>>;
-  getPrevPage: (pageCursor: string) => Promise<DataPage<T>>;
+  startFulltextSearch: (text: string) => Promise<string>;
+  getNextPage: (pageCursor: string, searchText: string) => Promise<DataPage<T>>;
+  getPrevPage: (pageCursor: string, searchText: string) => Promise<DataPage<T>>;
 };
 
 interface DataDropdownProps<T> {
@@ -21,7 +21,7 @@ interface DataDropdownProps<T> {
   onChangeValue: (value: T | null) => void;
   dataSource: DataSource<T>;
   onRenderCurrentValue?: (value: T | null) => React.ReactNode;
-  onRenderItemValue?: (value: T) => React.ReactNode;
+  onRenderItemValue?: (value: T | null) => React.ReactNode;
 }
 
 export const DataDropdown = <T,>({
@@ -31,16 +31,20 @@ export const DataDropdown = <T,>({
   onRenderCurrentValue,
   onRenderItemValue,
 }: DataDropdownProps<T>) => {
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState<string>("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
-  const [pageCursor, setPageCursor] = useState<string>(""); // State for storing the page cursor
+  const [pageCursor, setPageCursor] = useState<string>("");
 
   // Function to start a text search
-  const startSearch = async (text: string) => {
-    const page = await dataSource.startFulltextSearch(text);
-    setDataPage(page);
-    setPageCursor(page.nextPageCursor || ""); // Store the next page cursor
-  };
+  const startSearch = useCallback(
+    async (text: string) => {
+      const cursor = await dataSource.startFulltextSearch(text);
+      const page = await dataSource.getNextPage(cursor, text);
+      setDataPage(page);
+      setPageCursor(cursor);
+    },
+    [dataSource]
+  );
 
   // Function to handle item click
   const handleItemClick = (item: T) => {
@@ -60,17 +64,17 @@ export const DataDropdown = <T,>({
 
   // Function to load the next page
   const loadNextPage = async () => {
-    if (dataPage?.nextPageCursor) {
-      const nextPage = await dataSource.getNextPage(dataPage.nextPageCursor);
+    if (pageCursor) {
+      const nextPage = await dataSource.getNextPage(pageCursor, searchText);
       setDataPage(nextPage);
-      setPageCursor(nextPage.nextPageCursor || ""); // Update the cursor for the next page
+      setPageCursor(nextPage.nextPageCursor || "");
     }
   };
 
   // Function to load the previous page
   const loadPrevPage = async () => {
-    if (dataPage?.prevPageCursor) {
-      const prevPage = await dataSource.getPrevPage(dataPage.prevPageCursor);
+    if (pageCursor) {
+      const prevPage = await dataSource.getPrevPage(pageCursor, searchText);
       setDataPage(prevPage);
       setPageCursor(prevPage.prevPageCursor || ""); // Update the cursor for the previous page
     }
@@ -78,19 +82,20 @@ export const DataDropdown = <T,>({
 
   useEffect(() => {
     if (searchText) {
-      startSearch(searchText); // Start search if there is text entered
+      startSearch(searchText);
     } else {
-      setDataPage(null); // Clear search results if the text is empty
+      setDataPage(null);
+      setPageCursor("");
     }
-  }, [searchText]);
+  }, [searchText, startSearch]);
 
   // Function to render each list item
   const renderItem = (item: T) => {
     if (onRenderItemValue) {
-      return onRenderItemValue(item); // Use provided render function if available
+      return onRenderItemValue(item);
     }
 
-    return dataSource.getDisplayName(item); // Display item name via getDisplayName
+    return dataSource.getDisplayName(item);
   };
 
   return (
