@@ -27,14 +27,8 @@ const paginate = <T>(
 export const ArraySource: DataSource<Company> = {
   getDisplayName: (value: Company) => value.name,
 
-  // Function for full-text search
-  startFulltextSearch: (text: string): Promise<string> => {
-    const filtered = companies.filter(
-      (company) => company.name.toLowerCase().includes(text.toLowerCase()) // Filter by company name
-    );
-
-    const firstPage = paginate(filtered, 10, 0);
-    return Promise.resolve(firstPage.nextPageCursor || "0");
+  startFulltextSearch: (): Promise<string> => {
+    return Promise.resolve("0");
   },
 
   // Function to get the next page
@@ -47,7 +41,6 @@ export const ArraySource: DataSource<Company> = {
       company.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    // Returning the next page
     return Promise.resolve(paginate(filtered, 10, cursor));
   },
 
@@ -61,6 +54,8 @@ export const ArraySource: DataSource<Company> = {
       company.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    return Promise.resolve(paginate(filtered, 10, cursor - 1));
+    const prevCursor = cursor > 0 ? cursor : 0;
+
+    return Promise.resolve(paginate(filtered, 10, prevCursor));
   },
 };

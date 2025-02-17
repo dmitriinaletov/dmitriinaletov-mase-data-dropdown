@@ -33,7 +33,6 @@ export const DataDropdown = <T,>({
 }: DataDropdownProps<T>) => {
   const [searchText, setSearchText] = useState<string>("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
-  const [pageCursor, setPageCursor] = useState<string>("");
 
   // Function to start a text search
   const startSearch = useCallback(
@@ -41,7 +40,6 @@ export const DataDropdown = <T,>({
       const cursor = await dataSource.startFulltextSearch(text);
       const page = await dataSource.getNextPage(cursor, text);
       setDataPage(page);
-      setPageCursor(cursor);
     },
     [dataSource]
   );
@@ -64,19 +62,23 @@ export const DataDropdown = <T,>({
 
   // Function to load the next page
   const loadNextPage = async () => {
-    if (pageCursor) {
-      const nextPage = await dataSource.getNextPage(pageCursor, searchText);
+    if (dataPage?.nextPageCursor) {
+      const nextPage = await dataSource.getNextPage(
+        dataPage.nextPageCursor,
+        searchText
+      );
       setDataPage(nextPage);
-      setPageCursor(nextPage.nextPageCursor || "");
     }
   };
 
   // Function to load the previous page
   const loadPrevPage = async () => {
-    if (pageCursor) {
-      const prevPage = await dataSource.getPrevPage(pageCursor, searchText);
+    if (dataPage?.prevPageCursor) {
+      const prevPage = await dataSource.getPrevPage(
+        dataPage.prevPageCursor,
+        searchText
+      );
       setDataPage(prevPage);
-      setPageCursor(prevPage.prevPageCursor || ""); // Update the cursor for the previous page
     }
   };
 
@@ -92,7 +94,6 @@ export const DataDropdown = <T,>({
       startSearch(searchText);
     } else {
       setDataPage(null);
-      setPageCursor("");
     }
   }, [searchText, startSearch]);
 
