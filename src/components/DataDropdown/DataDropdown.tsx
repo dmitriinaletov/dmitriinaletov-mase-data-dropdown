@@ -132,10 +132,14 @@ export const DataDropdown = <T,>({
       </div>
       <div className="pagination">
         {dataPage?.prevPageCursor && (
-          <button onClick={loadPrevPage}>Previous</button>
+          <button className="previous-btn" onClick={loadPrevPage}>
+            Previous
+          </button>
         )}
         {dataPage?.nextPageCursor && (
-          <button onClick={loadNextPage}>Next</button>
+          <button className="next-btn" onClick={loadNextPage}>
+            Next
+          </button>
         )}
       </div>
       <div className="current-value">{renderCurrentValue()}</div>
