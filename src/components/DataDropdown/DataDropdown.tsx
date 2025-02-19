@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-
 import "./DataDropdown.css";
 
 export type DataPage<T> = {
@@ -34,7 +33,6 @@ export const DataDropdown = <T,>({
   const [searchText, setSearchText] = useState<string>("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
 
-  // Function to start a text search
   const startSearch = useCallback(
     async (text: string) => {
       const cursor = await dataSource.startFulltextSearch(text);
@@ -44,23 +42,10 @@ export const DataDropdown = <T,>({
     [dataSource]
   );
 
-  // Function to handle item click
   const handleItemClick = (item: T) => {
     onChangeValue(item);
   };
 
-  // Render the current value
-  const renderCurrentValue = () => {
-    if (onRenderCurrentValue) {
-      return onRenderCurrentValue(value); // Use provided render function if available
-    }
-
-    if (value === null) return "Select an item";
-
-    return dataSource.getDisplayName(value); // Display the name via getDisplayName
-  };
-
-  // Function to load the next page
   const loadNextPage = async () => {
     if (dataPage?.nextPageCursor) {
       const nextPage = await dataSource.getNextPage(
@@ -71,7 +56,6 @@ export const DataDropdown = <T,>({
     }
   };
 
-  // Function to load the previous page
   const loadPrevPage = async () => {
     if (dataPage?.prevPageCursor) {
       const prevPage = await dataSource.getPrevPage(
@@ -82,10 +66,9 @@ export const DataDropdown = <T,>({
     }
   };
 
-  // Handle click on the input field to load the first page
   const handleDropdownClick = () => {
     if (!dataPage) {
-      startSearch(""); // Load the first page when the dropdown is clicked
+      startSearch("");
     }
   };
 
@@ -97,12 +80,10 @@ export const DataDropdown = <T,>({
     }
   }, [searchText, startSearch]);
 
-  // Function to render each list item
   const renderItem = (item: T) => {
     if (onRenderItemValue) {
       return onRenderItemValue(item);
     }
-
     return dataSource.getDisplayName(item);
   };
 
@@ -112,23 +93,19 @@ export const DataDropdown = <T,>({
         type="text"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
-        onFocus={handleDropdownClick} // Trigger the first page load on input focus
+        onFocus={handleDropdownClick}
         placeholder="Search..."
       />
       <div className="dropdown-list">
-        {dataPage?.data.length ? (
-          dataPage.data.map((item, index) => (
-            <div
-              key={index}
-              className="dropdown-item"
-              onClick={() => handleItemClick(item)}
-            >
-              {renderItem(item)}
-            </div>
-          ))
-        ) : (
-          <div className="no-results">No results found</div>
-        )}
+        {dataPage?.data.map((item, index) => (
+          <div
+            key={index}
+            className="dropdown-item"
+            onClick={() => handleItemClick(item)}
+          >
+            {renderItem(item)}
+          </div>
+        ))}
       </div>
       <div className="pagination">
         {dataPage?.prevPageCursor && (
@@ -142,7 +119,6 @@ export const DataDropdown = <T,>({
           </button>
         )}
       </div>
-      <div className="current-value">{renderCurrentValue()}</div>
     </div>
   );
 };
