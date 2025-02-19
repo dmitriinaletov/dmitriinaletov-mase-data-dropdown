@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { DataDropdown } from "./components/DataDropdown/DataDropdown";
 import { ArraySource } from "./data/ArraySource";
 import { Popup } from "./components/Popup/Popup";
@@ -11,9 +11,11 @@ type Company = {
 const App: React.FC = () => {
   const [selectedValue, setSelectedValue] = useState<Company | null>(null);
   const [showPopup, setShowPopup] = useState(false);
+  const popupTargetRef = useRef<HTMLElement | null>(null);
 
-  const handleChangeValue = (value: Company | null) => {
+  const handleChangeValue = (value: Company | null, target: HTMLElement) => {
     setSelectedValue(value);
+    popupTargetRef.current = target;
     setShowPopup(true);
   };
 
@@ -24,10 +26,11 @@ const App: React.FC = () => {
         onChangeValue={handleChangeValue}
         dataSource={ArraySource}
       />
-      {showPopup && selectedValue && (
+      {showPopup && selectedValue && popupTargetRef.current && (
         <Popup
           companyName={selectedValue.name}
           onClose={() => setShowPopup(false)}
+          targetRef={popupTargetRef}
         />
       )}
     </div>

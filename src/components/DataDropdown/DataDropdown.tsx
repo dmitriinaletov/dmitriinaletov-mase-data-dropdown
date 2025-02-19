@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+
 import "./DataDropdown.css";
 
 export type DataPage<T> = {
@@ -17,7 +18,7 @@ export type DataSource<T> = {
 
 interface DataDropdownProps<T> {
   value: T | null;
-  onChangeValue: (value: T | null) => void;
+  onChangeValue: (value: T | null, target: HTMLElement) => void;
   dataSource: DataSource<T>;
   onRenderCurrentValue?: (value: T | null) => React.ReactNode;
   onRenderItemValue?: (value: T | null) => React.ReactNode;
@@ -42,8 +43,12 @@ export const DataDropdown = <T,>({
     [dataSource]
   );
 
-  const handleItemClick = (item: T) => {
-    onChangeValue(item);
+  const handleItemClick = (
+    item: T,
+    event: React.MouseEvent<HTMLDivElement>
+  ) => {
+    const target = event.target as HTMLElement;
+    onChangeValue(item, target);
   };
 
   const loadNextPage = async () => {
@@ -101,7 +106,7 @@ export const DataDropdown = <T,>({
           <div
             key={index}
             className="dropdown-item"
-            onClick={() => handleItemClick(item)}
+            onClick={(event) => handleItemClick(item, event)}
           >
             {renderItem(item)}
           </div>

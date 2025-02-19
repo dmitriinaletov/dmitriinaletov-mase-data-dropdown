@@ -31,7 +31,6 @@ export const ArraySource: DataSource<Company> = {
     return Promise.resolve("0");
   },
 
-  // Function to get the next page
   getNextPage: (
     pageCursor: string,
     searchText: string
@@ -44,7 +43,6 @@ export const ArraySource: DataSource<Company> = {
     return Promise.resolve(paginate(filtered, 10, cursor));
   },
 
-  // Function to get the previous page
   getPrevPage: (
     pageCursor: string,
     searchText: string
