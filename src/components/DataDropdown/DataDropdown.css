@@ -44,3 +44,8 @@
   color: #aaa;
   font-size: 12px;
 }
+
+.current-value {
+  color: #d6d6d6;
+  font-size: 12px;
+}

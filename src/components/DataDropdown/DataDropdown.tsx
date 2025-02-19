@@ -33,6 +33,8 @@ export const DataDropdown = <T,>({
 }: DataDropdownProps<T>) => {
   const [searchText, setSearchText] = useState<string>("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [displayValue, setDisplayValue] = useState<T | null>(value);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const startSearch = useCallback(
@@ -50,6 +52,7 @@ export const DataDropdown = <T,>({
   ) => {
     const target = event.target as HTMLElement;
     onChangeValue(item, target);
+    setDisplayValue(item);
   };
 
   const loadNextPage = async () => {
@@ -76,6 +79,10 @@ export const DataDropdown = <T,>({
     if (!dataPage) {
       startSearch("");
     }
+    setIsDropdownOpen((prev) => !prev);
+    if (isDropdownOpen) {
+      setDisplayValue(null);
+    }
   };
 
   const handleWheel = (event: React.WheelEvent) => {
@@ -97,9 +104,14 @@ export const DataDropdown = <T,>({
     if (searchText) {
       startSearch(searchText);
     } else {
-      setDataPage(null);
+      const loadInitialData = async () => {
+        const cursor = await dataSource.startFulltextSearch("");
+        const page = await dataSource.getNextPage(cursor, "");
+        setDataPage(page);
+      };
+      loadInitialData();
     }
-  }, [searchText, startSearch]);
+  }, [searchText, startSearch, dataSource]);
 
   const renderItem = (item: T) => {
     if (onRenderItemValue) {
@@ -108,29 +120,42 @@ export const DataDropdown = <T,>({
     return dataSource.getDisplayName(item);
   };
 
+  const renderCurrentValue = () => {
+    if (onRenderCurrentValue) {
+      return onRenderCurrentValue(displayValue);
+    }
+    return displayValue
+      ? dataSource.getDisplayName(displayValue)
+      : "Select an item";
+  };
+
   return (
     <div className="data-dropdown" ref={dropdownRef} onWheel={handleWheel}>
       <input
         type="text"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
-        onFocus={handleDropdownClick}
+        onClick={handleDropdownClick}
         placeholder="Search..."
+        readOnly={!isDropdownOpen}
       />
-      <div className="dropdown-list">
-        {dataPage?.data.map((item, index) => (
-          <div
-            key={index}
-            className="dropdown-item"
-            onClick={(event) => handleItemClick(item, event)}
-          >
-            {renderItem(item)}
-          </div>
-        ))}
-        {dataPage?.nextPageCursor === "" && (
-          <div className="dropdown-item no-more-items">End of the list</div>
-        )}
-      </div>
+      {isDropdownOpen && (
+        <div className="dropdown-list">
+          {dataPage?.data.map((item, index) => (
+            <div
+              key={index}
+              className="dropdown-item"
+              onClick={(event) => handleItemClick(item, event)}
+            >
+              {renderItem(item)}
+            </div>
+          ))}
+          {dataPage?.nextPageCursor === "" && (
+            <div className="dropdown-item no-more-items">End of the list</div>
+          )}
+        </div>
+      )}
+      <div className="current-value">{renderCurrentValue()}</div>
     </div>
   );
 };
