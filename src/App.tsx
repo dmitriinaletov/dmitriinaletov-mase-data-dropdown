@@ -20,7 +20,7 @@ const App: React.FC = () => {
     setSelectedValue(value);
     const rect = target.getBoundingClientRect();
     setPopupPosition({
-      top: rect.top - rect.height * 2 + window.scrollY, // Отступ для попапа
+      top: rect.top - rect.height * 2 + window.scrollY,
       left: rect.right + window.scrollX,
     });
     setShowPopup(true);

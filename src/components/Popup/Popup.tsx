@@ -19,7 +19,7 @@ export const Popup: React.FC<PopupProps> = ({
   } | null>(null);
 
   useLayoutEffect(() => {
-    setPopupPosition(position); // Обновляем позицию попапа при изменении
+    setPopupPosition(position);
   }, [position]);
 
   if (!popupPosition) {
@@ -30,7 +30,7 @@ export const Popup: React.FC<PopupProps> = ({
     <TetherComponent
       attachment="middle left"
       targetAttachment="middle right"
-      target={document.body} // Рендерим попап относительно body
+      target={document.body}
       renderTarget={(ref) => (
         <div
           ref={ref}
