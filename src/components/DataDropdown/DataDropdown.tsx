@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 import "./DataDropdown.css";
 
@@ -33,6 +33,7 @@ export const DataDropdown = <T,>({
 }: DataDropdownProps<T>) => {
   const [searchText, setSearchText] = useState<string>("");
   const [dataPage, setDataPage] = useState<DataPage<T> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const startSearch = useCallback(
     async (text: string) => {
@@ -77,6 +78,21 @@ export const DataDropdown = <T,>({
     }
   };
 
+  const handleWheel = (event: React.WheelEvent) => {
+    if (dropdownRef.current) {
+      const bottom =
+        dropdownRef.current.scrollHeight ===
+        dropdownRef.current.scrollTop + dropdownRef.current.clientHeight;
+      const top = dropdownRef.current.scrollTop === 0;
+
+      if (event.deltaY > 0 && bottom && dataPage?.nextPageCursor) {
+        loadNextPage();
+      } else if (event.deltaY < 0 && top && dataPage?.prevPageCursor) {
+        loadPrevPage();
+      }
+    }
+  };
+
   useEffect(() => {
     if (searchText) {
       startSearch(searchText);
@@ -93,7 +109,7 @@ export const DataDropdown = <T,>({
   };
 
   return (
-    <div className="data-dropdown">
+    <div className="data-dropdown" ref={dropdownRef} onWheel={handleWheel}>
       <input
         type="text"
         value={searchText}
@@ -111,17 +127,8 @@ export const DataDropdown = <T,>({
             {renderItem(item)}
           </div>
         ))}
-      </div>
-      <div className="pagination">
-        {dataPage?.prevPageCursor && (
-          <button className="previous-btn" onClick={loadPrevPage}>
-            Previous
-          </button>
-        )}
-        {dataPage?.nextPageCursor && (
-          <button className="next-btn" onClick={loadNextPage}>
-            Next
-          </button>
+        {dataPage?.nextPageCursor === "" && (
+          <div className="dropdown-item no-more-items">End of the list</div>
         )}
       </div>
     </div>
