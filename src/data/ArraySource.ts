@@ -42,18 +42,4 @@ export const ArraySource: DataSource<Company> = {
 
     return Promise.resolve(paginate(filtered, 10, cursor));
   },
-
-  getPrevPage: (
-    pageCursor: string,
-    searchText: string
-  ): Promise<DataPage<Company>> => {
-    const cursor = parseInt(pageCursor, 10);
-    const filtered = companies.filter((company) =>
-      company.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    const prevCursor = cursor > 0 ? cursor : 0;
-
-    return Promise.resolve(paginate(filtered, 10, prevCursor));
-  },
 };

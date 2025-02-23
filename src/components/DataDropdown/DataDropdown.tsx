@@ -13,7 +13,6 @@ export type DataSource<T> = {
   getDisplayName: (value: T) => string;
   startFulltextSearch: (text: string) => Promise<string>;
   getNextPage: (pageCursor: string, searchText: string) => Promise<DataPage<T>>;
-  getPrevPage: (pageCursor: string, searchText: string) => Promise<DataPage<T>>;
 };
 
 interface DataDropdownProps<T> {
@@ -61,17 +60,10 @@ export const DataDropdown = <T,>({
         dataPage.nextPageCursor,
         searchText
       );
-      setDataPage(nextPage);
-    }
-  };
-
-  const loadPrevPage = async () => {
-    if (dataPage?.prevPageCursor) {
-      const prevPage = await dataSource.getPrevPage(
-        dataPage.prevPageCursor,
-        searchText
-      );
-      setDataPage(prevPage);
+      setDataPage((prevPage) => ({
+        ...nextPage,
+        data: [...(prevPage?.data || []), ...nextPage.data],
+      }));
     }
   };
 
@@ -85,17 +77,14 @@ export const DataDropdown = <T,>({
     }
   };
 
-  const handleWheel = (event: React.WheelEvent) => {
-    if (dropdownRef.current) {
-      const bottom =
-        dropdownRef.current.scrollHeight ===
-        dropdownRef.current.scrollTop + dropdownRef.current.clientHeight;
-      const top = dropdownRef.current.scrollTop === 0;
-
-      if (event.deltaY > 0 && bottom && dataPage?.nextPageCursor) {
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const dropdownElement = event.target as HTMLDivElement;
+    if (
+      dropdownElement.scrollTop + dropdownElement.clientHeight >=
+      dropdownElement.scrollHeight
+    ) {
+      if (dataPage?.nextPageCursor) {
         loadNextPage();
-      } else if (event.deltaY < 0 && top && dataPage?.prevPageCursor) {
-        loadPrevPage();
       }
     }
   };
@@ -130,7 +119,7 @@ export const DataDropdown = <T,>({
   };
 
   return (
-    <div className="data-dropdown" ref={dropdownRef} onWheel={handleWheel}>
+    <div className="data-dropdown">
       <input
         type="text"
         value={searchText}
@@ -140,7 +129,11 @@ export const DataDropdown = <T,>({
         readOnly={!isDropdownOpen}
       />
       {isDropdownOpen && (
-        <div className="dropdown-list">
+        <div
+          className="dropdown-list"
+          ref={dropdownRef}
+          onScroll={handleScroll}
+        >
           {dataPage?.data.map((item, index) => (
             <div
               key={index}

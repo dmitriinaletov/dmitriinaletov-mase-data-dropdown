@@ -29,6 +29,10 @@
   background-color: #fafafa;
   margin-bottom: 12px;
   padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .data-dropdown .dropdown-item {
