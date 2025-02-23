@@ -15,10 +15,11 @@ const paginate = <T>(
   const end = start + pageSize;
   const pageData = data.slice(start, end);
 
+  const nextPageCursor = end < data.length ? (pageCursor + 1).toString() : "";
+
   return {
     prevPageCursor: pageCursor > 0 ? (pageCursor - 1).toString() : "",
-    nextPageCursor:
-      pageData.length === pageSize ? (pageCursor + 1).toString() : "",
+    nextPageCursor: nextPageCursor,
     pageSize,
     data: pageData,
   };

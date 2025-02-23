@@ -67,13 +67,17 @@ export const DataDropdown = <T,>({
     }
   };
 
-  const handleDropdownClick = () => {
-    if (!dataPage) {
-      startSearch("");
-    }
+  const handleDropdownClick = (e: React.MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
     setIsDropdownOpen((prev) => !prev);
-    if (isDropdownOpen) {
-      setDisplayValue(null);
+  };
+
+  const handleInputClick = () => {
+    if (!isDropdownOpen) {
+      if (!dataPage) {
+        startSearch("");
+      }
+      setIsDropdownOpen(true);
     }
   };
 
@@ -120,14 +124,22 @@ export const DataDropdown = <T,>({
 
   return (
     <div className="data-dropdown">
-      <input
-        type="text"
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        onClick={handleDropdownClick}
-        placeholder="Search..."
-        readOnly={!isDropdownOpen}
-      />
+      <div className="input-container">
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder="Search..."
+          onClick={handleInputClick}
+        />
+        <span
+          className={`dropdown-arrow ${isDropdownOpen ? "open" : "closed"}`}
+          onClick={handleDropdownClick}
+        >
+          ▼
+        </span>
+      </div>
+
       {isDropdownOpen && (
         <div
           className="dropdown-list"
