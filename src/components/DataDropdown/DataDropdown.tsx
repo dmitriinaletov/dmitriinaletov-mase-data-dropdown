@@ -106,6 +106,10 @@ export const DataDropdown = <T,>({
     }
   }, [searchText, startSearch, dataSource]);
 
+  useEffect(() => {
+    setDisplayValue(value);
+  }, [value]);
+
   const renderItem = (item: T) => {
     if (onRenderItemValue) {
       return onRenderItemValue(item);

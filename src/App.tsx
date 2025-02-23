@@ -26,6 +26,11 @@ const App: React.FC = () => {
     setShowPopup(true);
   };
 
+  const handlePopupClose = () => {
+    setSelectedValue(null);
+    setShowPopup(false);
+  };
+
   return (
     <div>
       <DataDropdown
@@ -36,7 +41,7 @@ const App: React.FC = () => {
       {showPopup && selectedValue && popupPosition && (
         <Popup
           companyName={selectedValue.name}
-          onClose={() => setShowPopup(false)}
+          onClose={handlePopupClose}
           position={popupPosition}
         />
       )}
