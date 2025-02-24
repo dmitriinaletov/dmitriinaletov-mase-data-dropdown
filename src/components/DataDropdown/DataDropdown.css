@@ -75,3 +75,20 @@ input {
 .dropdown-arrow.open {
   transform: translateY(-80%) rotate(180deg);
 }
+
+.data-dropdown .dropdown-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.data-dropdown .dropdown-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.data-dropdown .dropdown-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.data-dropdown .dropdown-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}

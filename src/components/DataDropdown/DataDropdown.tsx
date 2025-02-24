@@ -70,7 +70,7 @@ export const DataDropdown = <T,>({
     const dropdownElement = event.target as HTMLDivElement;
     if (
       dropdownElement.scrollTop + dropdownElement.clientHeight >=
-      dropdownElement.scrollHeight
+      dropdownElement.scrollHeight * 0.75
     ) {
       if (dataPage?.nextPageCursor) {
         loadNextPage();
