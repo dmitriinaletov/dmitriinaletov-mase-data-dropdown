@@ -1,4 +1,9 @@
-export const companies = [
+export type Company = {
+  id: string;
+  name: string;
+};
+
+export const companies: Array<Company> = [
   { id: "1", name: "Alpha Technologies" },
   { id: "2", name: "Beta Solutions" },
   { id: "3", name: "Gamma Enterprises" },
@@ -99,4 +104,4 @@ export const companies = [
   { id: "98", name: "NexTech Solutions" },
   { id: "99", name: "Astra Enterprises" },
   { id: "100", name: "Vanguard Dynamics" },
-];
+].sort((a, b) => a.name.localeCompare(b.name));

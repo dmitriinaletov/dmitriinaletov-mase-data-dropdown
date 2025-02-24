@@ -1,19 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { DataPage, DataSource } from "../../data/DataSource";
 
 import "./DataDropdown.css";
-
-export type DataPage<T> = {
-  prevPageCursor: string;
-  nextPageCursor: string;
-  pageSize: number;
-  data: Array<T>;
-};
-
-export type DataSource<T> = {
-  getDisplayName: (value: T) => string;
-  startFulltextSearch: (text: string) => Promise<string>;
-  getNextPage: (pageCursor: string, searchText: string) => Promise<DataPage<T>>;
-};
 
 interface DataDropdownProps<T> {
   value: T | null;
@@ -39,7 +27,7 @@ export const DataDropdown = <T,>({
   const startSearch = useCallback(
     async (text: string) => {
       const cursor = await dataSource.startFulltextSearch(text);
-      const page = await dataSource.getNextPage(cursor, text);
+      const page = await dataSource.getNextPage(cursor);
       setDataPage(page);
     },
     [dataSource]
@@ -56,10 +44,7 @@ export const DataDropdown = <T,>({
 
   const loadNextPage = async () => {
     if (dataPage?.nextPageCursor) {
-      const nextPage = await dataSource.getNextPage(
-        dataPage.nextPageCursor,
-        searchText
-      );
+      const nextPage = await dataSource.getNextPage(dataPage.nextPageCursor);
       setDataPage((prevPage) => ({
         ...nextPage,
         data: [...(prevPage?.data || []), ...nextPage.data],
@@ -99,7 +84,7 @@ export const DataDropdown = <T,>({
     } else {
       const loadInitialData = async () => {
         const cursor = await dataSource.startFulltextSearch("");
-        const page = await dataSource.getNextPage(cursor, "");
+        const page = await dataSource.getNextPage(cursor);
         setDataPage(page);
       };
       loadInitialData();

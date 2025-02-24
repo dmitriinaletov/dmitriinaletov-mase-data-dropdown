@@ -1,39 +1,42 @@
 import { ArraySource } from "./ArraySource";
-import { companies } from "./Companies";
 
 describe("ArraySource", () => {
+  let source: ArraySource<string>;
+
+  beforeEach(() => {
+    source = new ArraySource(
+      ["fist", "second", "third", "fourth", "fifth", "end"],
+      (item) => item,
+      (item, expression) => item.includes(expression),
+      2
+    );
+  });
+
   test("getDisplayName should return the company name", () => {
-    const company = { id: "1", name: "Apple" };
-    const result = ArraySource.getDisplayName(company);
-    expect(result).toBe("Apple");
+    const result = source.getDisplayName("second");
+    expect(result).toBe("second");
   });
 
   test("startFulltextSearch should return '0'", async () => {
-    const result = await ArraySource.startFulltextSearch("some text");
+    const result = await source.startFulltextSearch("");
     expect(result).toBe("0");
   });
 
   test("getNextPage should return the next page of companies based on search", async () => {
-    const searchText = "Tech";
-    const pageCursor = "0";
-    const result = await ArraySource.getNextPage(pageCursor, searchText);
+    const firstPage = await source.startFulltextSearch("d");
+    const result = await source.getNextPage(firstPage);
 
-    const filteredCompanies = companies.filter((company) =>
-      company.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    expect(result.data.length).toBe(10);
-    expect(result.data[0].name).toBe(filteredCompanies[0].name);
-    expect(result.data[1].name).toBe(filteredCompanies[1].name);
+    expect(result.data.length).toBe(2);
+    expect(result.data[0]).toBe("second");
+    expect(result.data[1]).toBe("third");
 
     expect(result.prevPageCursor).toBe("");
     expect(result.nextPageCursor).toBe("1");
   });
 
   test("getNextPage should return an empty page if no data matches search", async () => {
-    const searchText = "NonExistentCompany";
-    const pageCursor = "0";
-    const result = await ArraySource.getNextPage(pageCursor, searchText);
+    const firstPage = await source.startFulltextSearch("nothing");
+    const result = await source.getNextPage(firstPage);
 
     expect(result.data.length).toBe(0);
     expect(result.prevPageCursor).toBe("");
@@ -41,19 +44,15 @@ describe("ArraySource", () => {
   });
 
   test("getNextPage should paginate correctly", async () => {
-    const searchText = "Tech";
-    const pageCursor = "2";
-    const result = await ArraySource.getNextPage(pageCursor, searchText);
+    const firstPage = await source.startFulltextSearch("");
+    const secondPage = await source.getNextPage(firstPage);
+    const result = await source.getNextPage(secondPage.nextPageCursor);
 
-    const filteredCompanies = companies.filter((company) =>
-      company.name.toLowerCase().includes(searchText.toLowerCase())
-    );
+    expect(result.data.length).toBe(2);
+    expect(result.data[0]).toBe("third");
+    expect(result.data[1]).toBe("fourth");
 
-    expect(result.data.length).toBe(10);
-    expect(result.data[0].name).toBe(filteredCompanies[20].name);
-    expect(result.data[1].name).toBe(filteredCompanies[21].name);
-
-    expect(result.prevPageCursor).toBe("1");
-    expect(result.nextPageCursor).toBe("");
+    expect(result.prevPageCursor).toBe("0");
+    expect(result.nextPageCursor).toBe("2");
   });
 });

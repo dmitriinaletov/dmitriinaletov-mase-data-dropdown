@@ -1,12 +1,7 @@
-import { DataSource, DataPage } from "../components/DataDropdown/DataDropdown";
-import { companies } from "./Companies";
+import { DataPage, DataSource } from "./DataSource";
 
-type Company = {
-  id: string;
-  name: string;
-};
-
-const paginate = <T>(
+// prettier-ignore
+const paginate = <T,>(
   data: T[],
   pageSize: number,
   pageCursor: number
@@ -25,22 +20,41 @@ const paginate = <T>(
   };
 };
 
-export const ArraySource: DataSource<Company> = {
-  getDisplayName: (value: Company) => value.name,
+export class ArraySource<T> implements DataSource<T> {
+  data: Array<T>;
+  displayName: (value: T) => string;
+  filter: (value: T, expression: string) => boolean;
+  expression: string;
+  pageSize: number;
 
-  startFulltextSearch: (): Promise<string> => {
+  constructor(
+    data: Array<T>,
+    displayName: (value: T) => string,
+    filter: (value: T, expression: string) => boolean,
+    pageSize: number = 10
+  ) {
+    this.data = data;
+    this.displayName = displayName;
+    this.filter = filter;
+    this.expression = "";
+    this.pageSize = pageSize;
+  }
+
+  getDisplayName(value: T) {
+    return this.displayName(value);
+  }
+
+  startFulltextSearch(expression: string): Promise<string> {
+    this.expression = expression;
     return Promise.resolve("0");
-  },
+  }
 
-  getNextPage: (
-    pageCursor: string,
-    searchText: string
-  ): Promise<DataPage<Company>> => {
+  getNextPage(pageCursor: string): Promise<DataPage<T>> {
     const cursor = parseInt(pageCursor, 10);
-    const filtered = companies.filter((company) =>
-      company.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = this.data.filter((item) =>
+      this.filter(item, this.expression)
     );
 
-    return Promise.resolve(paginate(filtered, 10, cursor));
-  },
-};
+    return Promise.resolve(paginate(filtered, this.pageSize, cursor));
+  }
+}
